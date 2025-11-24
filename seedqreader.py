@@ -60,10 +60,6 @@ FORMAT_BBQR = 'BBQR'
 bbqr_obj = None
 
 
-def to_str(bin_):
-    return bin_.decode('utf-8')
-
-
 def descriptor_to_output(descriptor_str):
     """Convert a descriptor string to a urtypes Output object."""
     from embit.networks import NETWORKS
@@ -367,8 +363,8 @@ class MultiQRCode(QRCode):
                     self.data = Output.from_cbor(cbor).descriptor()
                 #  bytes
                 elif _type == 'bytes':
-                    print('bytes')
-                    self.data = Bytes.from_cbor(cbor).data.decode('utf-8')
+                    self.data = Bytes.from_cbor(cbor).data
+                    self.data = self.data.decode('utf-8') if isinstance(self.data, bytes) else self.data
 
                 else:
                     print(f"Type not yet implemented: {type}")
@@ -599,10 +595,9 @@ class ReadQR(QThread):
                 data = pyzbar.decode(frame)
                 str_data = ""
                 if data:
-                    # print("try to_str(data[0].data)", data)
                     try:
-                        str_data = to_str(data[0].data)
-                        # print(str_data)
+                        str_data = data[0].data
+                        str_data = str_data.decode('utf-8') if isinstance(str_data, bytes) else str_data
                         try:
                             self.decode(str_data)
                         except Exception as e:
